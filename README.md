@@ -1,6 +1,8 @@
 # backend
 バックエンド用のリポジトリ
 
+<pre>
+.
 app
 ├── api
 │   ├── endpoints       # routerとパスオペレーション関数
@@ -16,4 +18,5 @@ app
 │   └── session.py      # DBのsessionmakerを記述
 ├── schemas             # pydanticを使ってリクエストボディやレスポンスボディの型を定義
 ├── models              # SQLAlchemyのモデルを定義
-└── main.py             # api/api.pyをrouterをapp=FastAPI()に加える
+└── main.py             # api/api.pyのrouterをapp=FastAPI()に加える
+</pre>
