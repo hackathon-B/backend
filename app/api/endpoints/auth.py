@@ -22,7 +22,7 @@ async def register_page():
 @router.post("/api/auth/register", response_model=UserResponse)
 async def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
-        # 既にメールアドレスが登録されていないか確認
+    # 既にメールアドレスが登録されていないか確認
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="既にメールアドレスは登録されています")
