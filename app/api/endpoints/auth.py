@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
 from app.core.security import create_access_token, verify_password
 from app.core.user import create_user, get_user_by_email
 from app.schemas.user import UserCreate, UserResponse
@@ -11,7 +10,8 @@ router = APIRouter()
 
 @router.get("/")
 def read_root():
-    return {"Hello" : "Fucabo!!"}
+    raise HTTPException(status_code=404, detail="Not Found")
+
 
 # 新規登録ページの表示
 @router.get("/api/auth/register")
@@ -28,7 +28,10 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="既にメールアドレスは登録されています")
 
     # 新規ユーザーの登録
-    new_user = create_user(db=db, user=user)
+    try:
+        new_user = create_user(db=db, user=user)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="ユーザー登録に失敗しました")
 
     # JWTトークンを生成する
     token = create_access_token({"sub":new_user.email})
@@ -54,7 +57,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     token = create_access_token({"sub":user.email})
     return {"access_token": token, "token_type": "bearer"}
 
-# ログアウト
+# ログアウト処理
 @router.post("/api/auth/logout")
 async def logout():
     return {"message" : "ログアウトしました"}
