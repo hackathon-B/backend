@@ -11,7 +11,7 @@ class User(Base):
     # ユーザー情報のカラムを定義
     user_id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=True)
 
     # Googleログイン用のカラムを定義
     google_id = Column(String, unique=True, index=True, nullable=True)
