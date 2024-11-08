@@ -62,7 +62,7 @@ class UpdateDictionary(BaseModel):
     title: str
     content: str
 
-# 編集・更新機能のエンドポイント
+# 編集・更新機能
 @app.put("/api/dictionary/{dictionary_id}/update")
 def update_dictionary(dictionary_id: int, update_data: UpdateDictionary):
     if dictionary_id not in fake_dictionary_db:
@@ -78,3 +78,10 @@ def update_dictionary(dictionary_id: int, update_data: UpdateDictionary):
     
     return {"message": "辞書が正常に更新されました", "updated_data": fake_dictionary_db[dictionary_id]}
 
+# 辞書の削除機能
+@app.delete("/api/dictionary/{dictionary_id}")
+def dictionary_delete(dictionary_id: int):
+    if not dictionary_id in fake_dictionary_db:
+        raise HTTPException(status_code=404, detail="指定された辞書は存在しません")
+    del fake_dictionary_db[dictionary_id]
+    return "正常に削除されました"
