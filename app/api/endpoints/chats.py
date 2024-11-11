@@ -43,30 +43,3 @@ def delete_chat(chat_id: int, db: Session = Depends(get_db), current_user: int =
     if not crud_chat.delete_chat(db_session=db, chat_id=chat_id):
         raise HTTPException(status_code=404, detail="Chat not found")
     return {"message": "チャットを削除しました"}
-
-# 新規メッセージ作成
-@router.post("/{chat_id}/messages", response_model=MessageModel)
-def add_message(chat_id: int, message: MessageCreate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
-    chat = db.query(ChatModel).filter(ChatModel.chat_id == chat_id, ChatModel.user_id == current_user.user_id).first()
-    if not chat:
-        raise HTTPException(status_code=404, detail="Chat not found")
-    db_message = MessageModel(**message.dict(), chat_id=chat_id)
-    db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
-    return db_message
-
-# 特定のメッセージ変更
-@router.put("/{chat_id}/messages/{message_id}", response_model=MessageModel)
-def update_message(chat_id: int, message_id: int, message: MessageUpdate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
-    chat = db.query(ChatModel).filter(ChatModel.chat_id == chat_id, ChatModel.user_id == current_user.user_id).first()
-    if not chat:
-        raise HTTPException(status_code=404, detail="Chat not found")
-    db_message = db.query(MessageModel).filter(MessageModel.message_id == message_id, MessageModel.chat_id == chat_id).first()
-    if not db_message:
-        raise HTTPException(status_code=404, detail="Message not found")
-    for key, value in message.dict(exclude_unset=True).items():
-        setattr(db_message, key, value)
-    db.commit()
-    db.refresh(db_message)
-    return db_message
