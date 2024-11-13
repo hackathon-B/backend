@@ -1,4 +1,4 @@
-import openai 
+from openai import OpenAI, OpenAIError 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -18,27 +18,35 @@ load_dotenv()
 router = APIRouter(prefix="/api/chats/{chat_id}/messages")
 
 # OpenAI APIキーの設定
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(os.getenv("OPENAI_API_KEY"))
 
-async def generate_ai_response(prompt: str) -> str:
+async def generate_ai_response(prompt: str, use_model_id: int) -> str:
     """OpenAI APIを使用してAIレスポンスを生成する"""
     try:
-        response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
-            temperature=0.7
-        )
-        return response.choice[0].message.content.strip()
-    except openai.error.OpenAIError as e:
+        if use_model_id == 1:
+            # chatGPTを使用する場合の処理
+            response = await client.chat.completions.create(
+                messages=[{
+                    "role": "user", 
+                    "content": prompt
+                }],
+                model="gpt-3.5-turbo",
+                max_tokens=150,
+                temperature=0.7
+            )
+            return response.choices[0].message.content
+        elif use_model_id == 2:
+            # claudeを使用する場合の処理
+            return
+        elif use_model_id == 3:
+            # geminiを使用する場合の処理
+            return
+        else:
+            raise ValueError(f"Invalid model ID: {use_model_id}")
+    except OpenAIError as e:
         raise HTTPException(
             status_code=503,
             detail=f"OpenAI service error: {str(e)}"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error: {str(e)}"
         )
 
 @router.post("", response_model=ChatWithMessages)
@@ -72,7 +80,7 @@ async def create_message(
     crud_message.create(db_session=db, obj_in=user_message_data)
     
     # AIレスポンスの生成と保存
-    ai_response = await generate_ai_response(message.message_text)
+    ai_response = await generate_ai_response(message.message_text, chat.use_model_id)
     ai_message_data = MessageCreate(
         message_text=ai_response,
         chat_id=chat_id,
