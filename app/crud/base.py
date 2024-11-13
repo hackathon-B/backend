@@ -2,6 +2,7 @@ from typing import List, Optional, Generic, TypeVar, Type
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from app.db.base_class import Base
@@ -70,7 +71,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         # 指定されたIDレコードを削除する
         primary_key_column = inspect(self.model).primary_key[0]
         obj = db_session.query(self.model).filter(primary_key_column == id).first()  # 削除対象のオブジェクトを取得
-        if obj in None:
+        if obj is None:
             raise ValueError(f"Record with id {id} not found.")
         db_session.delete(obj)  # オブジェクトをセッションから削除
         try:           
