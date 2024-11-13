@@ -18,9 +18,9 @@ class Settings(BaseSettings):
     def DATABASE_URL(self) -> str:
         return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    # 環境変数を.envファイルから読み込むように指定
+    # .envファイルから環境変数を読み込むように指定
     class Config:
         env_file = ".env"
-        env_file_encording = "utf-8"
+        env_file_encoding = "utf-8"
 
 settings = Settings()
