@@ -4,7 +4,7 @@ from typing import Optional, List
 
 class ChatBase(BaseModel):
     chat_title: str
-    user_model_id: int 
+    use_model_id: int 
     parent_chat_id: Optional[int] = None
     
 class ChatCreate(ChatBase):
