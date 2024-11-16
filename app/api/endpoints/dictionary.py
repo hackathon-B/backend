@@ -2,17 +2,14 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from pydantic import BaseModel, Emailstr
+from app.db.dictionary_db import fake_dictionary_db  
+from app.schemas.dictionary import UpdateDictionary
 from typing import List, Optional
 import hashlib
 import jwt
 
 app = FastAPI()
 
-# 仮のデータベース
-fake_dictionary_db = {
-    1: {"title": "初めての辞書", "content": "これはサンプルの内容です。"},
-    2: {"title": "二つ目の辞書", "content": "別のサンプル内容です。"}
-}
 
 # 辞書の登録処理
 @app.post("/api/dictionary/register")
@@ -57,10 +54,7 @@ def dictionary_search(title: str):
         return {"message": "検索結果に該当するものがありませんでした"}
     return search_results  
 
-# 更新用のリクエストデータ構造を定義
-class UpdateDictionary(BaseModel):
-    title: str
-    content: str
+
 
 # 編集・更新機能
 @app.put("/api/dictionary/{dictionary_id}/update")
