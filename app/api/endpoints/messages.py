@@ -1,16 +1,14 @@
 from openai import OpenAI, OpenAIError 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 from dotenv import load_dotenv
 import os
 
 from app.api import deps
-from app.models.message import Message as MessageModel
 from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType
 from app.crud.chat import crud_chat
 from app.crud.message import crud_message
-from app.schemas.chat import Chat, ChatCreate, ChatWithMessages
+from app.schemas.chat import ChatCreate, ChatWithMessages
 
 # .envファイルの読み込み
 load_dotenv()
@@ -54,7 +52,7 @@ async def create_message(
     chat_id: int, 
     message: MessageCreate, 
     db: Session = Depends(deps.get_db), 
-    current_user: int = Depends(deps.get_current_user)
+    current_user = Depends(deps.get_current_user)
 ):
     """新しいメッセージを作成し、AIレスポンスを生成する"""
     # チャットの存在確認とユーザーの検証
