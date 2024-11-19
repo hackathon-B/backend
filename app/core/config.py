@@ -8,10 +8,16 @@ class Settings(BaseSettings):
     DB_PORT: str = "3306"
     DB_NAME: str = "app_db"
 
-    # Google認証のクライアント情報
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str = "https://fucabo.net/api/google/callback"
+    # Google認証関連の設定(OIDC)
+    OIDC_ISSUER: str = "https://accounts.google.com"
+    OIDC_CLIENT_ID: str
+    OIDC_CLIENT_SECRET: str
+    OIDC_REDIRECT_URI: str
+
+    # JWTトークン関連の設定
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # @propertyはメソッドを属性のようにアクセスできるデコレーター
     @property
