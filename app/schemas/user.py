@@ -11,3 +11,8 @@ class UserCreate(UserBase):
 # ログイン時のスキーマを定義
 class UserLogin(UserBase):
     password: str
+
+# トークン生成時のスキーマを定義
+class Token(BaseModel):
+    access_token: str
+    token_typr: str
