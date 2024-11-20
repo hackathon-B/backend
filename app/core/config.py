@@ -8,19 +8,25 @@ class Settings(BaseSettings):
     DB_PORT: str = "3306"
     DB_NAME: str = "app_db"
 
-    # Google認証のクライアント情報
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str = "https://fucabo.net/api/google/callback"
+    # Google認証関連の設定(OIDC)
+    OIDC_ISSUER: str = "https://accounts.google.com"
+    OIDC_CLIENT_ID: str
+    OIDC_CLIENT_SECRET: str
+    OIDC_REDIRECT_URI: str
+
+    # JWTトークン関連の設定
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # @propertyはメソッドを属性のようにアクセスできるデコレーター
     @property
     def DATABASE_URL(self) -> str:
         return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    # 環境変数を.envファイルから読み込むように指定
+    # .envファイルから環境変数を読み込むように指定
     class Config:
         env_file = ".env"
-        env_file_encording = "utf-8"
+        env_file_encoding = "utf-8"
 
 settings = Settings()

@@ -2,11 +2,11 @@ fastapi
 uvicorn
 SQLAlchemy
 pymysql
-aiomysql
 python-dotenv
 cryptography
-google-auth
-google-auth-oauthlib
 python-jose[cryptography]
 passlib[bcrypt]
+google-auth
+google-auth-oauthlib
+requests
 openai
