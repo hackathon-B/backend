@@ -1,6 +1,7 @@
 from datetime import datetime
-from pypdantic import BaseModel, Field
+from pydantic import BaseModel, Field
 from typing import Optional, List
+from app.schemas.message import Message
 
 class ChatBase(BaseModel):
     chat_title: str
@@ -8,8 +9,8 @@ class ChatBase(BaseModel):
     parent_chat_id: Optional[int] = None
     
 class ChatCreate(ChatBase):
-    user_id: int
-    
+    pass
+
 class ChatUpdate(BaseModel):
     chat_title: Optional[str] = None
     use_model_id: Optional[int] = None
@@ -21,7 +22,7 @@ class ChatInDBBase(ChatBase):
     updated_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attributes = True
         
 class Chat(ChatInDBBase):
     pass

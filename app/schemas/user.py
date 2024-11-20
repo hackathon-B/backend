@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Emailstr, Field
+from pydantic import BaseModel, EmailStr, Field
 
 # ユーザーに共通する基本情報におけるスキーマを定義
 class UserBase(BaseModel):
-    email: Emailstr
+    email: EmailStr
 
 # ユーザー作成時のスキーマを定義
 class UserCreate(UserBase):
@@ -16,3 +16,12 @@ class UserLogin(UserBase):
 class Token(BaseModel):
     access_token: str
     token_typr: str
+
+# パスワードリセットリクエスト時のスキーマを定義
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+# パスワードリセット時のスキーマを定義
+class PasswordReset(BaseModel):
+    token: str
+    new_password: str

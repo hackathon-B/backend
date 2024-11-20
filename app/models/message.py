@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Index
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 from datetime import datetime
@@ -17,5 +17,5 @@ class Message(Base):
     
     # 複合インデックスの追加（チャットIDと作成日時でのソート・検索の効率化）
     __table_args__ = (
-        index('ix_messages_chat_id_created_at', 'chat_id', 'created_at'),
+        Index('ix_messages_chat_id_created_at', 'chat_id', 'created_at'),
     )

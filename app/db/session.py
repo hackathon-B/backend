@@ -8,3 +8,10 @@ engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
 
 # セッションを作成
 SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
