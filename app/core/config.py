@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # dbコンテナの環境変数
@@ -7,12 +7,15 @@ class Settings(BaseSettings):
     DB_HOST: str = "db"  
     DB_PORT: str = "3306"
     DB_NAME: str = "app_db"
+    
+    # openai_keyの設定
+    OPENAI_API_KEY: str | None = None
 
     # Google認証関連の設定(OIDC)
     OIDC_ISSUER: str = "https://accounts.google.com"
-    OIDC_CLIENT_ID: str
-    OIDC_CLIENT_SECRET: str
-    OIDC_REDIRECT_URI: str
+    OIDC_CLIENT_ID: str | None = None
+    OIDC_CLIENT_SECRET: str | None = None
+    OIDC_REDIRECT_URI: str | None = None
 
     # JWTトークン関連の設定
     SECRET_KEY: str

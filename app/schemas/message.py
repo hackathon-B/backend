@@ -24,6 +24,6 @@ class Message(BaseModel):
     sender_type: SenderType
     
     class Config:
-        orm_mode = True
+        from_attributes = True
         
 

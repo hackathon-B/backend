@@ -13,10 +13,10 @@ from app.schemas.chat import ChatCreate, ChatWithMessages
 # .envファイルの読み込み
 load_dotenv()
 
-router = APIRouter(prefix="/api/chats/{chat_id}/messages")
+router = APIRouter()
 
 # OpenAI APIキーの設定
-client = OpenAI(os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 async def generate_ai_response(prompt: str, use_model_id: int) -> str:
     """OpenAI APIを使用してAIレスポンスを生成する"""
@@ -35,10 +35,10 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
             return response.choices[0].message.content
         elif use_model_id == 2:
             # claudeを使用する場合の処理
-            return
+            raise NotImplementedError("Claude model is not implemented yet")
         elif use_model_id == 3:
             # geminiを使用する場合の処理
-            return
+            raise NotImplementedError("Gemini model is not implemented yet")
         else:
             raise ValueError(f"Invalid model ID: {use_model_id}")
     except OpenAIError as e:
@@ -47,7 +47,7 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
             detail=f"OpenAI service error: {str(e)}"
         )
 
-@router.post("", response_model=ChatWithMessages)
+@router.post("/", response_model=ChatWithMessages)
 async def create_message(
     chat_id: int, 
     message: MessageCreate, 

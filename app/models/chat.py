@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Index
+from sqlalchemy.orm import relationship, backref
 from app.db.base_class import Base
 from datetime import datetime
 
@@ -22,7 +22,7 @@ class Chat(Base):
     ai_model = relationship("AIModel", back_populates="chats")
     messages = relationship("Message", back_populates="chat", cascade="all, delete-orphan") # チャット削除時にメッセージも削除
     # 自己参照のリレーション
-    parent_chat = relationship("Chat", remote_side=[chat_id], backref=relationship("Chat", cascade="all, delete-orphan", name="child_chats"), cascade="all")
+    parent_chat = relationship("Chat", remote_side=[chat_id], backref=backref("child_chats", cascade="all, delete-orphan"), cascade="all")
     
     # 複合インデックスの追加
     __table_args__ = (

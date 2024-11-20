@@ -9,7 +9,7 @@ from app.models.user import User
 from app.api.deps import get_db
 import requests
 
-router = APIRouter(prefix="/auth/google", tags=["Google Authentication"])
+router = APIRouter()
 
 # レスポンス用のモデルを定義
 class GoogleLoginResponse(BaseModel):
