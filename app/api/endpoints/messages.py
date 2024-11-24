@@ -59,7 +59,7 @@ async def create_message(
     chat = crud_chat.get(db_session=db, id=chat_id)
     
     if not chat:
-        # チャットが存在しない場合、新しいチャットを作成し、最初のメッセージからタイトルを生成
+        # チャットが存在しない場合、新しいチャットを作成
         chat_create = ChatCreate(
             chat_title=message.message_text[:15] + "..." if len(message.message_text) > 15 else message.message_text,
             user_id=current_user.id, 
