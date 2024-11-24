@@ -1,12 +1,11 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional, List
 from app.schemas.message import Message
 
 class ChatBase(BaseModel):
     chat_title: str
     use_model_id: int 
-    parent_chat_id: Optional[int] = None
     
 class ChatCreate(ChatBase):
     pass
