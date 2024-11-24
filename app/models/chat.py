@@ -12,8 +12,9 @@ class Chat(Base):
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     chat_title = Column(String, nullable=False)
     use_model_id = Column(Integer, ForeignKey("ai_models.ai_model_id", ondelete="SET NULL"), nullable=True)
+    
     # 自己参照外部キー: 親チャットのID
-    parent_chat_id = Column(Integer, ForeignKey("chats.chat_id", ondelete="CASCADE"), nullable=True)
+    # parent_chat_id = Column(Integer, ForeignKey("chats.chat_id", ondelete="CASCADE"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -21,8 +22,9 @@ class Chat(Base):
     user = relationship("User", back_populates="chats")
     ai_model = relationship("AIModel", back_populates="chats")
     messages = relationship("Message", back_populates="chat", cascade="all, delete-orphan") # チャット削除時にメッセージも削除
+
     # 自己参照のリレーション
-    parent_chat = relationship("Chat", remote_side=[chat_id], backref=backref("child_chats", cascade="all, delete-orphan"), cascade="all")
+    # parent_chat = relationship("Chat", remote_side=[chat_id], backref=backref("child_chats", cascade="all, delete-orphan"), cascade="all")
     
     # 複合インデックスの追加
     __table_args__ = (

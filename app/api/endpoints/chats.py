@@ -24,7 +24,6 @@ def create_chat(
         chat_title=chat_in.chat_title,
         use_model_id=chat_in.use_model_id,
         user_id=current_user.id,
-        parent_chat_id=chat_in.parent_chat_id
     )
     db.add(chat)
     db.commit()
