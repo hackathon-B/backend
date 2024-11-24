@@ -17,8 +17,7 @@ class Dictionary(DictionaryBase):
     user_id: int
 
     class Config:
-        from_attributes = True  # Pydantic v2 以降で orm_mode の代わりに使用
-
+        from_attributes = True 
 # 辞書リストのスキーマ
 class DictionaryList(BaseModel):
-    dictionaries: List[Dictionary]  # List 型で Dictionary を含む
+    dictionaries: List[Dictionary] 
