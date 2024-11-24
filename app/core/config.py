@@ -1,4 +1,7 @@
 from pydantic_settings import BaseSettings
+from pydantic import AnyHttpUrl
+from typing import List
+import json
 
 class Settings(BaseSettings):
     # dbコンテナの環境変数
@@ -21,6 +24,18 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    # CORS設定（初期化時にCORS設定を環境変数より取得）
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        if isinstance(self.BACKEND_CORS_ORIGINS, str):
+            try:
+                self.BACKEND_CORS_ORIGINS = json.loads(self.BACKEND_CORS_ORIGINS)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"BACKEND_CORS_ORIGINS のJSON形式が無効です: {self.BACKEND_CORS_ORIGINS}") from e
 
     # @propertyはメソッドを属性のようにアクセスできるデコレーター
     @property

@@ -5,19 +5,17 @@ version: '3.8'
 services:
   app:
     build: .
-    container_name: fastapi_app
+    container_name: fucabo_app
     ports:
-      - "8000:80"
+      - "8000:8000"
     depends_on:
       - db
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: app_db
-      DB_USER: app_user
-      DB_PASSWORD: app_password
+    env_file:
+      - .env
     volumes:
       - .:/app
+    command: >
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   db:
     image: mysql:8.0

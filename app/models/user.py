@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 from app.models.chat import Chat
-# from app.models.dictionaries import Dictionary
+from app.models.dictionary import DictionaryModel as Dictionary
 
 # ユーザーモデルをを定義
 class User(Base):
@@ -23,7 +23,7 @@ class User(Base):
 
     # テーブルとのリレーションを定義
     chats = relationship("Chat", back_populates="user", cascade="all, delete-orphan")
-    # dictionaries = relationship("Dictionary", back_populates="user", cascade="all, delete-orphan")
+    dictionary = relationship("Dictionary", back_populates="user", cascade="all, delete-orphan")
 
     # メール・パスワード認証ユーザーかどうかを判定
     def is_password_user(self):

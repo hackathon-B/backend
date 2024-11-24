@@ -24,8 +24,8 @@ class GoogleCallbackResponse(BaseModel):
 def google_login():
     google_auth_url = (
         "https://accounts.google.com/o/oauth2/auth"
-        f"?client_id={settings.GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={settings.GOOGLE_REDIRECT_URI}"
+        f"?client_id={settings.OIDC_CLIENT_ID}"
+        f"&redirect_uri={settings.OIDC_REDIRECT_URI}"
         "&response_type=code"
         "&scope=email profile"
     )
