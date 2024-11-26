@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 from app.models.chat import Chat
-from app.models.dictionary import DictionaryModel as Dictionary
+from app.models.dictionary import Dictionary
 
 # ユーザーモデルをを定義
 class User(Base):
