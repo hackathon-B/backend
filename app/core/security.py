@@ -25,12 +25,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=30))
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=[ALGORITHM])
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM) # 修正
 
 # アクセストークンの検証し、ペイロードを取得する
 def verify_access_token(access_token: str) -> Optional[Dict[str, Union[str, int]]]:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except JWTError:
         return None

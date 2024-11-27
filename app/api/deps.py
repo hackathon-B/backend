@@ -36,7 +36,7 @@ def get_current_user(
         raise credentials_exception
 
     # データベースからユーザーを取得する
-    user = get_user_by_email(db, email=email)
+    user = get_user_by_email(db=db, email=email) #名前つき引数で呼び出し
     if user is None:
         raise credentials_exception
     return user

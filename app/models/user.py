@@ -1,8 +1,9 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
-from app.models.chat import Chat
-from app.models.dictionary import Dictionary
+from app.models.ai_model import AIModel #追加
+# from app.models.chat import Chat
+# from app.models.dictionary import Dictionary
 
 # ユーザーモデルをを定義
 class User(Base):
@@ -10,18 +11,19 @@ class User(Base):
 
     # ユーザー情報のカラムを定義
     user_id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=True)
 
     # Googleログイン用のカラムを定義
-    google_id = Column(String, unique=True, index=True, nullable=True)
-    user_icon = Column(String, nullable=True)
+    google_id = Column(String(255), unique=True, index=True, nullable=True)
+    user_icon = Column(String(255), nullable=True)
 
     # ユーザーが使用するデフォルトのAIモデルを定義    
     name = Column(String(30), nullable=True)
     default_model_id = Column(Integer, ForeignKey("ai_models.ai_model_id"), nullable=True)
 
     # テーブルとのリレーションを定義
+    default_ai_model = relationship("AIModel", back_populates="users") #追加
     chats = relationship("Chat", back_populates="user", cascade="all, delete-orphan")
     dictionary = relationship("Dictionary", back_populates="user", cascade="all, delete-orphan")
 

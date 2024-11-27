@@ -23,7 +23,7 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
     try:
         if use_model_id == 1:
             # chatGPTを使用する場合の処理
-            response = await client.chat.completions.create(
+            response = client.chat.completions.create(
                 messages=[{
                     "role": "user", 
                     "content": prompt
@@ -62,11 +62,11 @@ async def create_message(
         # チャットが存在しない場合、新しいチャットを作成
         chat_create = ChatCreate(
             chat_title=message.message_text[:15] + "..." if len(message.message_text) > 15 else message.message_text,
-            user_id=current_user.id, 
-            user_model_id=1 # デフォルトのモデルID
+            user_id=current_user.user_id, 
+            use_model_id=1 # デフォルトのモデルID
         )
         chat = crud_chat.create(db_session=db, obj_in=chat_create)
-    elif chat.user_id != current_user.id:
+    elif chat.user_id != current_user.user_id:
         raise HTTPException(status_code=403, detail="Access forbidden")
     
     # ユーザーメッセージの保存
@@ -96,11 +96,11 @@ def update_message(
     message_id: int, 
     message: MessageUpdate, 
     db: Session = Depends(deps.get_db), 
-    current_user: int = Depends(deps.get_current_user)
+    current_user = Depends(deps.get_current_user)
 ):
     """メッセージを更新する"""
     chat = crud_chat.get(db_session=db, id=chat_id)
-    if not chat or chat.user_id != current_user.id:
+    if not chat or chat.user_id != current_user.user_id:
         raise HTTPException(status_code=403, detail="Access forbidden")
     
     db_message = crud_message.get(db_session=db, id=message_id)
@@ -120,11 +120,11 @@ def delete_message(
     chat_id: int, 
     message_id: int, 
     db: Session = Depends(deps.get_db), 
-    current_user: int = Depends(deps.get_current_user)
+    current_user = Depends(deps.get_current_user)
 ):
     """メッセージを削除する"""
     chat = crud_chat.get(db_session=db, id=chat_id)
-    if not chat or chat.user_id != current_user.id:
+    if not chat or chat.user_id != current_user.user_id:
         raise HTTPException(status_code=403, detail="Access forbidden")
     
     try:   

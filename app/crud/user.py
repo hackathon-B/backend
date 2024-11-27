@@ -22,7 +22,7 @@ def authenticate_user(email: str, password: str, db: Session) -> Optional[User]:
     return user
 
 # emailによるユーザー検索
-def get_user_by_email(email: str, db: Session) -> Optional[User]:
+def get_user_by_email(db: Session, email: str) -> Optional[User]:  # 引数の順序を変更
     return db.query(User).filter(User.email == email).first()
 
 # リセットトークンによるユーザー検索

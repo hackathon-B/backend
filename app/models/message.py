@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Index
+from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime, Enum, Index
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 from datetime import datetime
@@ -9,7 +9,7 @@ class Message(Base):
     message_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     chat_id = Column(Integer, ForeignKey("chats.chat_id", ondelete="CASCADE"), nullable=True)
     sender_type = Column(Enum("user", "ai", name="sender_type"), nullable=False)  # Enumで'user'か'ai'のどちらか
-    message_text = Column(String, nullable=False)
+    message_text = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # リレーション設定
