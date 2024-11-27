@@ -23,7 +23,7 @@ def create_chat(
     chat = ChatModel(
         chat_title=chat_in.chat_title,
         use_model_id=chat_in.use_model_id,
-        user_id=current_user.id,
+        user_id=current_user.user_id,
     )
     db.add(chat)
     db.commit()

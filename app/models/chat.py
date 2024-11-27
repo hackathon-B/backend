@@ -8,7 +8,7 @@ class Chat(Base):
     
     chat_id = Column(Integer, primary_key=True, index=True, autoincrement=True)  
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
-    chat_title = Column(String, nullable=False)
+    chat_title = Column(String(255), nullable=False)
     use_model_id = Column(Integer, ForeignKey("ai_models.ai_model_id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -18,7 +18,7 @@ class Dictionary(Base):
     definition = Column(Text, nullable=False)
 
     # リレーション設定（ユーザーと紐付け）
-    user = relationship("User", back_populates="dictionaries")
+    user = relationship("User", back_populates="dictionary")
 
     # 複合インデックスの追加
     __table_args__ = (
