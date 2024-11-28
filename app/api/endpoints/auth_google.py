@@ -20,7 +20,7 @@ class GoogleCallbackResponse(BaseModel):
     token_type: str
 
 # GoogleのOAuth2.0認証ページへのリダイレクトURLを作成
-@router.get("/login", response_model=GoogleLoginResponse, summary="Google OAuth ログインページを取得")
+@router.get("/login", response_model=GoogleLoginResponse)
 def google_login():
     google_auth_url = (
         "https://accounts.google.com/o/oauth2/auth"
@@ -32,7 +32,7 @@ def google_login():
     return {"auth_url": google_auth_url}
 
 # Googleからコールバックを受ける
-@router.get("/callback", response_model=GoogleCallbackResponse, summary="Google OAuth コールバックを処理")
+@router.get("/callback", response_model=GoogleCallbackResponse)
 async def google_callback(code: str, db: Session = Depends(get_db)):
     token_url = "https://oauth2.googleapis.com/token"
     token_data = {
