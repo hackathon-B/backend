@@ -12,6 +12,11 @@ class UserCreate(UserBase):
 class UserLogin(UserBase):
     password: str
 
+# ユーザー情報更新時のスキーマを定義
+class UserUpdate(BaseModel):
+    username: str
+    email: str
+
 # トークン生成時のスキーマを定義
 class Token(BaseModel):
     access_token: str
