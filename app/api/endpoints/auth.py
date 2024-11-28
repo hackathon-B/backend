@@ -7,8 +7,15 @@ from app.core.security import create_access_token, verify_password, hash_passwor
 from app.core.config import settings
 # from app.core.email import send_reset_email
 from app.api.deps import get_db
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
 router = APIRouter()
+
+# リクエストボディのスキーマ
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 # ユーザー登録
 @router.post("/register", summary="新規ユーザー登録")
@@ -21,16 +28,21 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": "ユーザー登録が完了しました。"}
+    token = create_access_token({"sub": new_user.email})
+    return {"token": token}
 
 # ログイン
 @router.post("/login", summary="ログイン")
-def login_user(email: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="メールアドレスまたはパスワードが間違っています。")
-    access_token = create_access_token({"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+def login_user(login_data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == login_data.email).first()
+    if not user or not verify_password(login_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="メールアドレスまたはパスワードが間違っています。"
+        )
+    
+    token = create_access_token({"sub": user.email})
+    return {"token": token}
 
 # パスワードリセットのリクエスト
 @router.post("/password-reset/request", summary="パスワードリセットリクエスト")
