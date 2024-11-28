@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # CORS設定（初期化時にCORS設定を環境変数より取得）
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[str] = []
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -35,8 +35,14 @@ class Settings(BaseSettings):
             try:
                 self.BACKEND_CORS_ORIGINS = json.loads(self.BACKEND_CORS_ORIGINS)
             except json.JSONDecodeError as e:
-                raise ValueError(f"BACKEND_CORS_ORIGINS のJSON形式が無効です: {self.BACKEND_CORS_ORIGINS}") from e
-
+                # カンマ区切りの文字列として試行
+                self.BACKEND_CORS_ORIGINS = [
+                    origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",")
+                ]
+        # リストでない場合はからのリストにする
+        if not isinstance(self.BACKEND_CORS_ORIGINS, list):
+            self.BACKEND_CORS_ORIGINS = []
+        
     # @propertyはメソッドを属性のようにアクセスできるデコレーター
     @property
     def DATABASE_URL(self) -> str:
