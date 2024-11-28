@@ -18,7 +18,7 @@ class LoginRequest(BaseModel):
     password: str
 
 # ユーザー登録
-@router.post("/register", summary="新規ユーザー登録")
+@router.post("/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -32,7 +32,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     return {"token": token}
 
 # ログイン
-@router.post("/login", summary="ログイン")
+@router.post("/login")
 def login_user(login_data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == login_data.email).first()
     if not user or not verify_password(login_data.password, user.hashed_password):
@@ -45,7 +45,7 @@ def login_user(login_data: LoginRequest, db: Session = Depends(get_db)):
     return {"token": token}
 
 # パスワードリセットのリクエスト
-@router.post("/password-reset/request", summary="パスワードリセットリクエスト")
+@router.post("/password-reset/request")
 def request_password_reset(request: PasswordResetRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
@@ -58,7 +58,7 @@ def request_password_reset(request: PasswordResetRequest, db: Session = Depends(
     return {"message": "パスワード再設定用のメールを送信しました。"}
 
 # パスワードリセット
-@router.post("/password-reset/confirm", summary="パスワードリセット")
+@router.post("/password-reset/confirm")
 def confirm_password_reset(reset: PasswordReset, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.reset_token == reset.token).first()
     if not user or user.reset_token_expiry < datetime.utcnow():
@@ -68,3 +68,54 @@ def confirm_password_reset(reset: PasswordReset, db: Session = Depends(get_db)):
     user.reset_token_expiry = None
     db.commit()
     return {"message": "パスワードが正常にリセットされました。"}
+
+# ユーザー情報の取得
+@router.get("/user")
+def get_user_info(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "created_at": current_user.created_at,
+        "updated_at": current_user.updated_at,
+    }
+
+# ユーザー情報の更新
+@router.patch("/user")
+def update_user_info(
+    user_update: UserUpdate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    if user_update.email:
+        existing_user = db.query(User).filter(User.email == user_update.email).first()
+        if existing_user and existing_user.id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="このメールアドレスは既に使用されています。"
+            )
+        current_user.email = user_update.email
+
+    if user_update.password:
+        current_user.hashed_password = hash_password(user_update.password)
+
+    db.commit()
+    db.refresh(current_user)
+    return {
+        "message": "ユーザー情報が正常に更新されました。",
+        "user": {
+            "id": current_user.id,
+            "email": current_user.email,
+            "created_at": current_user.created_at,
+            "updated_at": current_user.updated_at,
+        },
+    }
+
+# ユーザーアカウントを削除
+@router.delete("/user")
+def delete_user_account(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    db.delete(current_user)
+    db.commit()
+    return {"message": "ユーザーアカウントが正常に削除されました。"}
