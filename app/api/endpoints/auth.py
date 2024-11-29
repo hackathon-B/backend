@@ -6,9 +6,10 @@ from app.models.user import User
 from app.core.security import create_access_token, verify_password, hash_password
 from app.core.config import settings
 # from app.core.email import send_reset_email
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
+from app.schemas.user import UserUpdate
 
 router = APIRouter()
 
@@ -18,7 +19,7 @@ class LoginRequest(BaseModel):
     password: str
 
 # ユーザー登録
-@router.post("/register", summary="新規ユーザー登録")
+@router.post("/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -32,7 +33,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     return {"token": token}
 
 # ログイン
-@router.post("/login", summary="ログイン")
+@router.post("/login")
 def login_user(login_data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == login_data.email).first()
     if not user or not verify_password(login_data.password, user.hashed_password):
@@ -45,7 +46,7 @@ def login_user(login_data: LoginRequest, db: Session = Depends(get_db)):
     return {"token": token}
 
 # パスワードリセットのリクエスト
-@router.post("/password-reset/request", summary="パスワードリセットリクエスト")
+@router.post("/password-reset/request")
 def request_password_reset(request: PasswordResetRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
@@ -58,7 +59,7 @@ def request_password_reset(request: PasswordResetRequest, db: Session = Depends(
     return {"message": "パスワード再設定用のメールを送信しました。"}
 
 # パスワードリセット
-@router.post("/password-reset/confirm", summary="パスワードリセット")
+@router.post("/password-reset/confirm")
 def confirm_password_reset(reset: PasswordReset, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.reset_token == reset.token).first()
     if not user or user.reset_token_expiry < datetime.utcnow():
