@@ -6,7 +6,7 @@ import os
 from typing import List
 
 from app.api import deps
-from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType, MessageResponse, ChatMessageResponse
+from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType, MessageResponse, ChatMessageResponse, ReceiveMessage
 from app.crud.chat import crud_chat
 from app.crud.message import crud_message
 from app.schemas.chat import ChatCreate, ChatWithMessages
@@ -62,16 +62,15 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
 @router.post("/", response_model=ChatMessageResponse)
 async def create_message(
     chat_id: int,
-    message_text: str,
-    use_model_id: int = 1, # デフォルトのモデルID
+    message: ReceiveMessage,
     db: Session = Depends(deps.get_db),
     current_user = Depends(deps.get_current_user)
 ):
     # 新しいチャットを作成するか、既存のチャットを取得
     if chat_id == 0:
         chat = ChatModel(
-            chat_title=message_text[:15] + "..." if len(message_text) > 15 else message_text,
-            use_model_id=use_model_id,  # 指定したモデルIDを設定
+            chat_title=message.message_text[:15] + "..." if len(message.message_text) > 15 else message.message_text,
+            use_model_id=message.use_model_id,  # 指定したモデルIDを設定
             user_id=current_user.user_id,
         )
         db.add(chat)
@@ -86,7 +85,7 @@ async def create_message(
 
     # ユーザーメッセージ保存
     user_message = MessageModel(
-        message_text=message_text,
+        message_text=message.message_text,
         chat_id=chat.chat_id,
         sender_type=SenderType.USER
     )
@@ -95,7 +94,7 @@ async def create_message(
     db.refresh(user_message)
 
     # AIレスポンス生成と保存
-    ai_response = await generate_ai_response(message_text, chat.use_model_id)
+    ai_response = await generate_ai_response(message.message_text, chat.use_model_id)
     ai_message = MessageModel(
         message_text=ai_response,
         chat_id=chat.chat_id,
