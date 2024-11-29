@@ -20,8 +20,11 @@ def create_chat(
     current_user: User = Depends(get_current_user),
     chat_in: ChatCreate
 ) -> Chat:
+    # タイトルが空の場合のデフォルト値を設定
+    chat_title = chat_in.chat_title or "新しいチャット"
     chat = ChatModel(
-        chat_title=chat_in.chat_title,
+        chat_title=chat_title,  # 入力がなければ「新しいチャット」を使用 
+       # chat_title=chat_in.chat_title,
         use_model_id=chat_in.use_model_id,
         user_id=current_user.user_id,
     )
