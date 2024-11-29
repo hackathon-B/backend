@@ -1,5 +1,6 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import inspect
 
 from app.models.chat import Chat
 from app.schemas.chat import ChatCreate, ChatUpdate
@@ -33,5 +34,48 @@ class CRUDChat(CRUDBase[Chat, ChatCreate, ChatUpdate]):
             .filter(Chat.chat_id == chat_id)
             .first()
         )
+
+    def update_chat(
+        self, 
+        db_session: Session, 
+        *, 
+        chat_id: int, 
+        new_title: Optional[str] = None,
+        new_model_id: Optional[int] = None
+    ) -> Chat:
+        """チャットの情報を更新する"""
+        chat = db_session.query(Chat).filter(Chat.chat_id == chat_id).first()
+        if not chat:
+            raise ValueError(f"Chat with id {chat_id} not found")
+            
+        if new_title is not None:
+            chat.chat_title = new_title
+        if new_model_id is not None:
+            chat.use_model_id = new_model_id
+            
+        db_session.add(chat)
+        try:
+            db_session.commit()
+            db_session.refresh(chat)
+        except Exception as e:
+            db_session.rollback()
+            raise e
+        
+        return chat
+
+    def delete_chat(self, db_session: Session, *, chat_id: int) -> bool:
+        """チャットを削除する"""
+        try:
+            chat = db_session.query(Chat).filter(Chat.chat_id == chat_id).first()
+            if not chat:
+                return False
+            
+            db_session.delete(chat)
+            db_session.commit()
+            return True
+        except Exception:
+            db_session.rollback()
+            return False
+
 
 crud_chat = CRUDChat(Chat)
