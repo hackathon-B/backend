@@ -3,12 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 import os
+from typing import List
 
 from app.api import deps
-from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType
+from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType, MessageResponse
 from app.crud.chat import crud_chat
 from app.crud.message import crud_message
 from app.schemas.chat import ChatCreate, ChatWithMessages
+from app.models.chat import Chat as ChatModel
+from app.models.message import Message as MessageModel
 
 # .envファイルの読み込み
 load_dotenv()
@@ -47,47 +50,68 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
             detail=f"OpenAI service error: {str(e)}"
         )
 
-@router.post("/", response_model=ChatWithMessages)
+@router.post("/", response_model=List[MessageResponse])
 async def create_message(
-    chat_id: int, 
-    message: MessageCreate, 
-    db: Session = Depends(deps.get_db), 
+    chat_id: int,
+    message_text: str,
+    db: Session = Depends(deps.get_db),
     current_user = Depends(deps.get_current_user)
 ):
-    """新しいメッセージを作成し、AIレスポンスを生成する"""
-    # チャットの存在確認とユーザーの検証
-    chat = crud_chat.get(db_session=db, id=chat_id)
-    
-    if not chat:
-        # チャットが存在しない場合、新しいチャットを作成
-        chat_create = ChatCreate(
-            chat_title=message.message_text[:15] + "..." if len(message.message_text) > 15 else message.message_text,
-            user_id=current_user.user_id, 
-            use_model_id=1 # デフォルトのモデルID
+    # 新しいチャットを作成するか、既存のチャットを取得
+    if chat_id == 0:
+        chat = ChatModel(
+            chat_title=message_text[:30] + "..." if len(message_text) > 30 else message_text,
+            use_model_id=1,  # デフォルトのモデルID
+            user_id=current_user.user_id,
         )
-        chat = crud_chat.create(db_session=db, obj_in=chat_create)
-    elif chat.user_id != current_user.user_id:
-        raise HTTPException(status_code=403, detail="Access forbidden")
-    
-    # ユーザーメッセージの保存
-    user_message_data = MessageCreate(
-        message_text=message.message_text, 
-        chat_id=chat_id, 
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+    else:
+        chat = crud_chat.get(db_session=db, id=chat_id)
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        if chat.user_id != current_user.user_id:
+            raise HTTPException(status_code=403, detail="Access forbidden")
+
+    # ユーザーメッセージ保存
+    user_message = MessageModel(
+        message_text=message_text,
+        chat_id=chat.chat_id,
         sender_type=SenderType.USER
     )
-    crud_message.create(db_session=db, obj_in=user_message_data)
-    
-    # AIレスポンスの生成と保存
-    ai_response = await generate_ai_response(message.message_text, chat.use_model_id)
-    ai_message_data = MessageCreate(
+    db.add(user_message)
+    db.commit()
+    db.refresh(user_message)
+
+    # AIレスポンス生成と保存
+    ai_response = await generate_ai_response(message_text, chat.use_model_id)
+    ai_message = MessageModel(
         message_text=ai_response,
-        chat_id=chat_id,
+        chat_id=chat.chat_id,
         sender_type=SenderType.AI
     )
-    crud_message.create(db_session=db, obj_in=ai_message_data)
-    
-    # 更新されたチャット情報を返す
-    return crud_chat.get_chat_details(db_session=db, chat_id=chat_id)
+    db.add(ai_message)
+    db.commit()
+    db.refresh(ai_message)
+
+    # チャット履歴を取得
+    messages = db.query(MessageModel).filter(MessageModel.chat_id == chat.chat_id).all()
+
+    # レスポンス用に整形
+    response = [
+        MessageResponse(
+            chat_id=msg.chat_id,
+            message_id=msg.message_id,
+            message_text=msg.message_text,
+            sender_type=msg.sender_type,
+            created_at=msg.created_at,
+            chat_title=chat.chat_title if msg.message_id == ai_message.message_id else None
+        )
+        for msg in messages
+    ]
+
+    return response
 
 # 特定のメッセージ変更
 @router.put("/{message_id}", response_model=Message)
