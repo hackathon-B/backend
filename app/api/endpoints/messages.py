@@ -6,7 +6,7 @@ import os
 from typing import List
 
 from app.api import deps
-from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType, MessageResponse
+from app.schemas.message import Message, MessageCreate, MessageUpdate, SenderType, MessageResponse, ChatMessageResponse
 from app.crud.chat import crud_chat
 from app.crud.message import crud_message
 from app.schemas.chat import ChatCreate, ChatWithMessages
@@ -50,18 +50,19 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
             detail=f"OpenAI service error: {str(e)}"
         )
 
-@router.post("/", response_model=List[MessageResponse])
+@router.post("/", response_model=ChatMessageResponse)
 async def create_message(
     chat_id: int,
     message_text: str,
+    use_model_id: int = 1, # デフォルトのモデルID
     db: Session = Depends(deps.get_db),
     current_user = Depends(deps.get_current_user)
 ):
     # 新しいチャットを作成するか、既存のチャットを取得
     if chat_id == 0:
         chat = ChatModel(
-            chat_title=message_text[:30] + "..." if len(message_text) > 30 else message_text,
-            use_model_id=1,  # デフォルトのモデルID
+            chat_title=message_text[:15] + "..." if len(message_text) > 15 else message_text,
+            use_model_id=use_model_id,  # 指定したモデルIDを設定
             user_id=current_user.user_id,
         )
         db.add(chat)
@@ -96,22 +97,21 @@ async def create_message(
     db.refresh(ai_message)
 
     # チャット履歴を取得
-    messages = db.query(MessageModel).filter(MessageModel.chat_id == chat.chat_id).all()
+    messages = db.query(MessageModel).filter(MessageModel.chat_id == chat.chat_id).order_by(MessageModel.created_at).all()
 
     # レスポンス用に整形
-    response = [
-        MessageResponse(
-            chat_id=msg.chat_id,
-            message_id=msg.message_id,
-            message_text=msg.message_text,
-            sender_type=msg.sender_type,
-            created_at=msg.created_at,
-            chat_title=chat.chat_title if msg.message_id == ai_message.message_id else None
-        )
-        for msg in messages
-    ]
-
-    return response
+    return ChatMessageResponse(
+        chat_id=chat.chat_id,
+        chat_title=chat.chat_title,
+        messages=[
+            MessageResponse(
+                message_id=msg.message_id,
+                message_text=msg.message_text,
+                sender_type=msg.sender_type,
+                created_at=msg.created_at
+            ) for msg in messages
+        ]
+    )
 
 # 特定のメッセージ変更
 @router.put("/{message_id}", response_model=Message)
