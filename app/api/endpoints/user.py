@@ -10,13 +10,16 @@ from app.db.session import get_db
 router = APIRouter()
 
 # ユーザー情報の取得
+
 @router.get("/")
 def get_user_info(current_user: User = Depends(get_current_user)):
     return {
-        "id": current_user.id,
+        "user_id": current_user.user_id,
         "email": current_user.email,
-        "created_at": current_user.created_at,
-        "updated_at": current_user.updated_at,
+
+        # チャットの情報を取得？ここでは不要 izumi
+        # "created_at": current_user.created_at,
+        # "updated_at": current_user.updated_at,
     }
 
 # ユーザー情報の更新
@@ -28,7 +31,7 @@ def update_user_info(
 ):
     if user_update.email:
         existing_user = db.query(User).filter(User.email == user_update.email).first()
-        if existing_user and existing_user.id != current_user.id:
+        if existing_user and existing_user.id != current_user.user_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="このメールアドレスは既に使用されています。"
@@ -43,7 +46,7 @@ def update_user_info(
     return {
         "message": "ユーザー情報が正常に更新されました。",
         "user": {
-            "id": current_user.id,
+            "user_id": current_user.user_id,
             "email": current_user.email,
             "created_at": current_user.created_at,
             "updated_at": current_user.updated_at,
