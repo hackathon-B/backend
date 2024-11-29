@@ -32,16 +32,25 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
                     "content": prompt
                 }],
                 model="gpt-3.5-turbo",
-                max_tokens=150,
+                max_tokens=400,
                 temperature=0.7
             )
             return response.choices[0].message.content
         elif use_model_id == 2:
-            # claudeを使用する場合の処理
-            raise NotImplementedError("Claude model is not implemented yet")
+            # chatGPt4oを使用する場合の処理
+            response = client.chat.completions.create(
+                messages=[{
+                    "role": "user", 
+                    "content": prompt
+                }],
+                model="gpt-4o",
+                max_tokens=400,
+                temperature=0.7
+            )
+            return response.choices[0].message.content
+        # claudeを使用する場合の処理
         elif use_model_id == 3:
-            # geminiを使用する場合の処理
-            raise NotImplementedError("Gemini model is not implemented yet")
+            raise NotImplementedError("Claude model is not implemented yet")
         else:
             raise ValueError(f"Invalid model ID: {use_model_id}")
     except OpenAIError as e:
