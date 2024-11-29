@@ -50,5 +50,4 @@ class ChatMessageResponse(BaseModel):
 # チャットメッセージ作成用スキーマ
 class ReceiveMessage(BaseModel):
     message_text: str
-    use_model_id: int
-
+    use_model_id: int = 1
