@@ -11,7 +11,7 @@ router = APIRouter()
 
 # ユーザー情報の取得
 
-@router.get("/")
+@router.get("")
 def get_user_info(current_user: User = Depends(get_current_user)):
     return {
         "user_id": current_user.user_id,
@@ -23,7 +23,7 @@ def get_user_info(current_user: User = Depends(get_current_user)):
     }
 
 # ユーザー情報の更新
-@router.patch("/")
+@router.patch("")
 def update_user_info(
     user_update: UserUpdate, 
     db: Session = Depends(get_db), 
@@ -54,7 +54,7 @@ def update_user_info(
     }
 
 # ユーザーアカウントを削除
-@router.delete("/")
+@router.delete("")
 def delete_user_account(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)

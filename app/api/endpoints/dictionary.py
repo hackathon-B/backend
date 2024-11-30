@@ -10,7 +10,7 @@ from app.models.user import User
 router = APIRouter(prefix="/api/dictionary")
 
 # 辞書の登録処理
-@router.post("/", response_model=DictionaryEntry)
+@router.post("", response_model=DictionaryEntry)
 def create_dictionary_entry(
     dictionary: DictionaryCreate,
     db: Session = Depends(get_db),
@@ -42,7 +42,7 @@ def create_dictionary_entry(
     return db_entry
     
 # 全ての辞書の取得
-@router.get("/", response_model=DictionaryListResponse)
+@router.get("", response_model=DictionaryListResponse)
 def get_all_dictionaries(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)

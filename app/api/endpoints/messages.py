@@ -59,7 +59,7 @@ async def generate_ai_response(prompt: str, use_model_id: int) -> str:
             detail=f"OpenAI service error: {str(e)}"
         )
 
-@router.post("/", response_model=ChatMessageResponse)
+@router.post("", response_model=ChatMessageResponse)
 async def create_message(
     chat_id: int,
     message: ReceiveMessage,

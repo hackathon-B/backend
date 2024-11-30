@@ -13,7 +13,7 @@ from app.models.user import User
 router = APIRouter()
 
 # 新しいチャットを作成
-@router.post("/", response_model=Chat)
+@router.post("", response_model=Chat)
 def create_chat(
     *,
     db: Session = Depends(get_db),
@@ -64,7 +64,7 @@ def get_chat(
     )
 
 # 全てのチャット取得
-@router.get("/", response_model=List[Chat])
+@router.get("", response_model=List[Chat])
 def get_all_chats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return crud_chat.get_by_user(db_session=db, user_id=current_user.user_id)
 
