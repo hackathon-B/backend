@@ -27,6 +27,7 @@ class Dictionary(BaseModel):
 
 # 特定の辞書エントリー用レスポンススキーマ
 class DictionaryEntry(BaseModel):
+    id: int  # 辞書ID
     term: str  # タイトル
     definition: str  # 内容
 
