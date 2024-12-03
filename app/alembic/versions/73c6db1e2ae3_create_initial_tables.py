@@ -80,17 +80,17 @@ def upgrade() -> None:
     op.create_index(op.f('ix_messages_message_id'), 'messages', ['message_id'], unique=False)
     # ### end Alembic commands ###
 
-    # 初期データの投入を追加（最後に追加）
-    op.execute("""
-        INSERT INTO ai_models (ai_model_id, ai_model_name, description) 
-        VALUES 
-            (1, 'GPT-3.5-turbo', 'OpenAI GPT-3.5モデル'),
-            (2, 'GPT-4o', 'OpenAI GPT-4モデル'),
-            (3, 'Claude-3-5-sonnet', 'Anthropic Claudeモデル')
-        ON DUPLICATE KEY UPDATE
-            ai_model_name = VALUES(ai_model_name),
-            description = VALUES(description)
-    """)
+    # # 初期データの投入を追加（最後に追加）
+    # op.execute("""
+    #     INSERT INTO ai_models (ai_model_id, ai_model_name, description) 
+    #     VALUES 
+    #         (1, 'GPT-3.5-turbo', 'OpenAI GPT-3.5モデル'),
+    #         (2, 'GPT-4o', 'OpenAI GPT-4モデル'),
+    #         (3, 'Claude-3-5-sonnet', 'Anthropic Claudeモデル')
+    #     ON DUPLICATE KEY UPDATE
+    #         ai_model_name = VALUES(ai_model_name),
+    #         description = VALUES(description)
+    # """)
 
 
 def downgrade() -> None:
