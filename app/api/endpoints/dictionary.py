@@ -7,7 +7,8 @@ from app.schemas.dictionary import DictionaryCreate, DictionaryUpdate, Dictionar
 from app.schemas.dictionary import DeleteResponse
 from app.models.user import User
 
-router = APIRouter(prefix="/api/dictionary")
+router = APIRouter()  #この部分を変更
+#router = APIRouter(prefix="/api/dictionary")
 
 # 辞書の登録処理
 @router.post("", response_model=DictionaryEntry)
